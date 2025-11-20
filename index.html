@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CKEditor Live Preview</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- CKEditor Classic Build -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+</head>
+
+<body class="bg-gray-100 p-6">
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 gap-6">
+
+        <!-- TEXT EDITOR -->
+        <div class="bg-white shadow-lg rounded-2xl p-4">
+            <h2 class="text-xl font-semibold mb-4">CKEditor Input</h2>
+            <textarea id="editor"></textarea>
+        </div>
+
+        <!-- PREVIEW -->
+        <div class="bg-white shadow-lg rounded-2xl p-4">
+            <h2 class="text-xl font-semibold mb-4">Live Preview (AJAX)</h2>
+            <div id="preview" class="prose max-w-none"></div>
+
+            <!-- LOADING -->
+            <div id="loading" class="hidden mt-4 text-blue-600 font-medium">
+                Updating preview...
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <script>
+        let editorInstance = null;
+        let typingTimer;
+
+        ClassicEditor.create(document.querySelector('#editor'))
+            .then(editor => {
+                editorInstance = editor;
+
+                editor.model.document.on('change:data', function () {
+                    clearTimeout(typingTimer);
+
+                    // Delay AJAX 500ms agar tidak spam request
+                    typingTimer = setTimeout(updatePreviewAjax, 500);
+                });
+
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+
+        function updatePreviewAjax() {
+            const loading = document.getElementById("loading");
+            const preview = document.getElementById("preview");
+
+            loading.classList.remove("hidden");
+
+            // Simulasi AJAX
+            setTimeout(() => {
+                const html = editorInstance.getData();
+
+                // Render hasil "respon server"
+                preview.innerHTML = html;
+
+                loading.classList.add("hidden");
+            }, 400); // simulasi AJAX delay
+        }
+    </script>
+
+</body>
+</html>

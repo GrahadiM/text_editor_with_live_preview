@@ -1,21 +1,173 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="id">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor dengan Live Preview</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Froala Editor -->
     <link href='https://cdn.jsdelivr.net/npm/froala-editor@latest/css/froala_editor.pkgd.min.css' rel='stylesheet' type='text/css' />
+    <style>
+        .preview-content {
+            min-height: 300px;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            background-color: white;
+        }
+        .preview-content img {
+            max-width: 100%;
+            height: auto;
+        }
+        .preview-content table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .preview-content table, .preview-content th, .preview-content td {
+            border: 1px solid #d1d5db;
+        }
+        .preview-content th, .preview-content td {
+            padding: 0.5rem;
+        }
+        .preview-content blockquote {
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
+            margin-left: 0;
+            font-style: italic;
+            color: #4b5563;
+        }
+        .preview-content pre {
+            background-color: #f3f4f6;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            overflow-x: auto;
+        }
+        .preview-content code {
+            background-color: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+        }
+    </style>
 </head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Editor dengan Live Preview</h1>
+            <p class="text-gray-600 mt-2">Tulis konten Anda di editor dan lihat pratinjaunya secara langsung</p>
+        </header>
 
-<body>
-    <div id="froala-editor"></div>
-    <script type='text/javascript'
-        src='https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js'></script>
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Editor Section -->
+            <div class="w-full lg:w-1/2">
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Editor</h2>
+                    <div id="froala-editor"></div>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="w-full lg:w-1/2">
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-700">Live Preview</h2>
+                        <div class="flex space-x-2">
+                            <button id="copy-btn" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                Salin HTML
+                            </button>
+                            <button id="clear-btn" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                    <div id="preview" class="preview-content">
+                        <p class="text-gray-500 italic">Konten akan muncul di sini saat Anda mengetik di editor...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-gray-500 text-sm">
+            <p>Dibuat dengan Froala Editor dan Tailwind CSS</p>
+        </footer>
+    </div>
+
+    <!-- Froala Editor JS -->
+    <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js'></script>
+    
     <script>
-        let editor = new FroalaEditor('div#froala-editor', {}, function () {
-            console.log(editor.html.get())
+        // Initialize Froala Editor
+        let editor = new FroalaEditor('div#froala-editor', {
+            heightMin: 300,
+            toolbarButtons: {
+                'moreText': {
+                    'buttons': ['bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', 'textColor', 'backgroundColor', 'inlineClass', 'inlineStyle', 'clearFormatting']
+                },
+                'moreParagraph': {
+                    'buttons': ['alignLeft', 'alignCenter', 'alignRight', 'alignJustify', 'formatOL', 'formatUL', 'paragraphFormat', 'paragraphStyle', 'lineHeight', 'outdent', 'indent', 'quote']
+                },
+                'moreRich': {
+                    'buttons': ['insertLink', 'insertImage', 'insertVideo', 'insertTable', 'emoticons', 'fontAwesome', 'specialCharacters', 'embedly', 'insertFile', 'insertHR']
+                },
+                'moreMisc': {
+                    'buttons': ['undo', 'redo', 'fullscreen', 'print', 'getPDF', 'spellChecker', 'selectAll', 'html', 'help']
+                }
+            },
+            events: {
+                'contentChanged': function () {
+                    updatePreview();
+                }
+            }
+        });
+
+        // Update preview function
+        function updatePreview() {
+            const content = editor.html.get() || '';
+            const previewElement = document.getElementById('preview');
+            
+            if (content.trim() === '') {
+                previewElement.innerHTML = '<p class="text-gray-500 italic">Konten akan muncul di sini saat Anda mengetik di editor...</p>';
+            } else {
+                previewElement.innerHTML = content;
+            }
+        }
+
+        // Copy HTML button
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            const content = editor.html.get() || '';
+            if (content.trim() === '') {
+                alert('Tidak ada konten untuk disalin!');
+                return;
+            }
+            
+            navigator.clipboard.writeText(content).then(function() {
+                const originalText = this.textContent;
+                this.textContent = 'Tersalin!';
+                this.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                this.classList.add('bg-green-500', 'hover:bg-green-600');
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    this.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                }, 2000);
+            }.bind(this));
+        });
+
+        // Clear content button
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            if (confirm('Apakah Anda yakin ingin menghapus semua konten?')) {
+                editor.html.set('');
+                updatePreview();
+            }
+        });
+
+        // Initialize preview on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePreview();
         });
     </script>
 </body>
-
 </html>

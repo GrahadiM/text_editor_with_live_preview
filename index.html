@@ -1,131 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>CKEditor Live Preview</title>
-
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- CKEditor Classic Build FULL (with all features) -->
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
-
-    <!-- CKEditor Plugins (Font, Color, Image Upload, Table Tools, etc) -->
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/translations/id.js"></script>
-
-    <style>
-        /* Untuk styling hasil preview */
-        #preview img {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-
-        #preview table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        #preview table, #preview th, #preview td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-
-        #preview pre {
-            background: #1e1e1e;
-            color: #fff;
-            padding: 12px;
-            border-radius: 8px;
-        }
-    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0" />
+    <link href='https://cdn.jsdelivr.net/npm/froala-editor@latest/css/froala_editor.pkgd.min.css' rel='stylesheet' type='text/css' />
 </head>
 
-<body class="bg-gray-100 p-6">
-
-    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-
-        <!-- TEXT EDITOR -->
-        <div class="md:col-span-2 bg-white shadow-lg rounded-2xl p-4">
-            <h2 class="text-xl font-semibold mb-4">CKEditor Input</h2>
-            <textarea id="editor"></textarea>
-        </div>
-
-        <!-- PREVIEW -->
-        <div class="bg-white shadow-lg rounded-2xl p-4">
-            <h2 class="text-xl font-semibold mb-4">Live Preview (AJAX)</h2>
-            <div id="preview" class="prose max-w-none"></div>
-
-            <!-- LOADING -->
-            <div id="loading" class="hidden mt-4 text-blue-600 font-medium">
-                Updating preview...
-            </div>
-        </div>
-
-    </div>
-
-
+<body>
+    <div id="froala-editor"></div>
+    <script type='text/javascript'
+        src='https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js'></script>
     <script>
-        let editorInstance = null;
-        let typingTimer;
-
-        ClassicEditor
-            .create(document.querySelector('#editor'), {
-                language: 'id',
-                ckfinder: {
-                    uploadUrl: '' // kosong = gunakan base64 image plugin
-                },
-                toolbar: {
-                    items: [
-                        'heading',
-                        '|',
-                        'bold', 'italic', 'underline', 'strikethrough',
-                        'fontSize', 'fontColor', 'fontBackgroundColor',
-                        '|',
-                        'link', 'blockQuote', 'codeBlock',
-                        '|',
-                        'bulletedList', 'numberedList', 'todoList',
-                        '|',
-                        'alignment',
-                        '|',
-                        'insertTable',
-                        'imageUpload',
-                        '|',
-                        'undo', 'redo'
-                    ]
-                },
-                table: {
-                    contentToolbar: [
-                        'tableColumn', 'tableRow', 'mergeTableCells'
-                    ]
-                }
-            })
-            .then(editor => {
-                editorInstance = editor;
-
-                editor.model.document.on('change:data', function () {
-                    clearTimeout(typingTimer);
-                    typingTimer = setTimeout(updatePreviewAjax, 400);
-                });
-            })
-            .catch(error => console.error(error));
-
-
-        function updatePreviewAjax() {
-            const loading = document.getElementById("loading");
-            const preview = document.getElementById("preview");
-
-            loading.classList.remove("hidden");
-
-            // Simulasi request ke server
-            setTimeout(() => {
-                const html = editorInstance.getData();
-
-                // Tampilkan hasil ke preview
-                preview.innerHTML = html;
-
-                loading.classList.add("hidden");
-            }, 300);
-        }
+        let editor = new FroalaEditor('div#froala-editor', {}, function () {
+            console.log(editor.html.get())
+        });
     </script>
-
 </body>
+
 </html>
